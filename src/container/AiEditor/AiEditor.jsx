@@ -4,7 +4,7 @@ import "./AiEditor.css";
 import { getPromptAnswer } from "../../utils/model";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { a11yDark, dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 function AiEditor() {
   const [prompt, setPrompt] = useState("");
@@ -40,7 +40,7 @@ function AiEditor() {
             <input type="submit" />
           </div>
 
-          <SyntaxHighlighter language="javascript" style={dark}>
+          <SyntaxHighlighter language="javascript" style={dracula}>
            {codeString}
           </SyntaxHighlighter>
         </form>
