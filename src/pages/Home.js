@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { v4 as uuidV4 } from 'uuid';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import EditorPage from './EditorPage';
+import AiEditor from '../container/AiEditor/AiEditor';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -37,12 +39,7 @@ const Home = () => {
     return (
         <div className="homePageWrapper">
             <div className="formWrapper">
-                <img
-                    className="homePageLogo"
-                    src="/code-sync.png"
-                    alt="code-sync-logo"
-                />
-                <h4 className="mainLabel">Paste invitation ROOM ID</h4>
+                <h4 className="mainLabel">Join or create a room</h4>
                 <div className="inputGroup">
                     <input
                         type="text"
@@ -60,27 +57,20 @@ const Home = () => {
                         value={username}
                         onKeyUp={handleInputEnter}
                     />
-                    <button className="btn joinBtn" onClick={joinRoom}>
+                    <button className="btn joinBtn" onClick={joinRoom}> 
                         Join
                     </button>
                     <span className="createInfo">
-                        If you don't have an invite then create &nbsp;
-                        <a
+                        <button
                             onClick={createNewRoom}
                             href=""
-                            className="createNewBtn"
+                            className="createNewBtn createIDButton"
                         >
-                            new room
-                        </a>
+                            Create new Room
+                        </button>
                     </span>
                 </div>
             </div>
-            <footer>
-                <h4>
-                    Built with 💛 &nbsp; by &nbsp;
-                    <a href="https://github.com/codersgyan">Coder's Gyan</a>
-                </h4>
-            </footer>
         </div>
     );
 };

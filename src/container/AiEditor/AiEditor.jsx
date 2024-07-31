@@ -1,51 +1,103 @@
 import React, { useState } from "react";
-
+import { GiArtificialHive } from "react-icons/gi";
+import { RxCross2 } from "react-icons/rx";
 import "./AiEditor.css";
 import { getPromptAnswer } from "../../utils/model";
-
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { a11yDark, dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 function AiEditor() {
   const [prompt, setPrompt] = useState("");
-  const [aiMessage, setAiMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const [codeString, setCodeString] = useState();
+  const [usingAI, setUsingAI] = useState(false);
+  const [responses, setResponses] = useState([]);
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
-    try {
+    if (e.key == 'Enter') {
       setLoading(true);
-      const answer = await getPromptAnswer(prompt);
-      setLoading(false);
-      console.log(answer);
-      const answers = answer.split("```");
-      setCodeString(answers[1]);
-      console.log("ALL ARRA",answers);
 
-      setAiMessage(answer);
-    } catch (e) {
-      throw Error(e.message);
+      // Combine all previous responses into a single string, including the new prompt
+      const conversationHistory = responses
+        .map(
+          (response) => `User: ${response.question}\nAI: ${response.answer}`
+        )
+        .join("\n");
+
+      const fullPrompt = `${conversationHistory}\nUser: ${prompt}\nAI:`;
+
+      try {
+        // Get the answer from the AI model using the full prompt including history
+        const answer = await getPromptAnswer(fullPrompt);
+        setLoading(false);
+
+        // Update the responses state with the new question and answer
+        const newResponses = [...responses, { question: prompt, answer }];
+        setResponses(newResponses);
+        setPrompt("");
+      } catch (e) {
+        setLoading(false);
+        console.error(`An error occurred: ${e.message}`);
+      }
     }
   };
-  return (
-    <div className="overlay">
-      <div className="overlay__contnet">
-        <h1>Ai Editor</h1>
-        {loading ? <p>LOADING</p> : <p>{aiMessage}</p>}
-        <form onSubmit={handleSubmitForm}>
-          <div className="text__field">
-            <input type="text" onChange={(e) => setPrompt(e.target.value)} />
-            <input type="submit" />
-          </div>
 
-          <SyntaxHighlighter language="javascript" style={dracula}>
-           {codeString}
-          </SyntaxHighlighter>
-        </form>
-      </div>
-    </div>
+  return (
+    <>
+      {!usingAI && (
+        <div className="use_ai_btn" onClick={() => setUsingAI(true)}>
+          <GiArtificialHive />
+        </div>
+      )}
+      {usingAI && (
+        <div className="overlay">
+          <div className="top_section">
+            <h1 className="overlay_heading">Ai Editor</h1>
+            <div className="cross" onClick={() => setUsingAI(false)}>
+              <RxCross2 />
+            </div>
+          </div>
+          <div className="overlay_response">
+            {responses.map((response, key) => (
+              <div key={key} className="response">
+                <p className="question">{response.question}</p>
+                <SyntaxHighlighter language="javascript" style={dracula}>
+                  {response.answer}
+                </SyntaxHighlighter>
+              </div>
+            ))}
+          </div>
+          {loading && (
+            <div className="loading-animation">
+              {/* Typing animation loader */}
+              <div className="typing-dots">
+                <span className="dot"></span>
+                <span className="dot"></span>
+                <span className="dot"></span>
+              </div>
+            </div>
+          )}          <form onSubmit={handleSubmitForm}>
+            <div className="text__field">
+              <textarea
+                className="text_input"
+                rows='auto'
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyUp={handleSubmitForm}
+                disabled={loading}
+              />
+              <input
+                type="submit"
+                value="ASK"
+                className="text_submit"
+                disabled={loading}
+
+              />
+            </div>
+          </form>
+        </div>
+      )}
+    </>
   );
 }
 
