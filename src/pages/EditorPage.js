@@ -89,7 +89,7 @@ const EditorPage = () => {
 
   return (
     <>
-      <AiEditor />
+      <AiEditor socketRef={socketRef} roomId={roomId} />
       <div className="mainWrap">
         <div className="aside">
           <div className="asideInner">

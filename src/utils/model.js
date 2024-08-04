@@ -12,6 +12,8 @@ Please write efficient, well-documented, and optimized code for the following ta
 Task: ${taskDescription}
 
 Requirements:
+- If prompt didn't contained the specific coding task, then u should ignore below requirements, and answer the task accordingly 
+- Always check whether it's coding task or not , if it's not a coding task u can ignore below written requirements
 - Ensure the code is efficient and follows best practices.
 - Include comments to explain key parts of the code.
 - Provide examples of how to use the implemented code.

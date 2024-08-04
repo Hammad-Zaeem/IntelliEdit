@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GiArtificialHive } from "react-icons/gi";
 import { RxCross2 } from "react-icons/rx";
 import "./AiEditor.css";
 import { getPromptAnswer } from "../../utils/model";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import ACTIONS from "../../Actions";
 
-function AiEditor() {
+function AiEditor({ socketRef, roomId }) {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [usingAI, setUsingAI] = useState(false);
@@ -14,14 +15,12 @@ function AiEditor() {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
-    if (e.key == 'Enter') {
+    if (e.key == "Enter") {
       setLoading(true);
 
       // Combine all previous responses into a single string, including the new prompt
       const conversationHistory = responses
-        .map(
-          (response) => `User: ${response.question}\nAI: ${response.answer}`
-        )
+        .map((response) => `User: ${response.question}\nAI: ${response.answer}`)
         .join("\n");
 
       const fullPrompt = `${conversationHistory}\nUser: ${prompt}\nAI:`;
@@ -42,6 +41,38 @@ function AiEditor() {
     }
   };
 
+  // Function to emit responses to the server
+  const emitResponses = (newResponses) => {
+    if (socketRef.current) {
+      socketRef.current.emit(ACTIONS.AI_RESPONSES, { roomId, responses: newResponses });
+    }
+  };
+
+  useEffect(() => {
+    emitResponses(responses);
+  }, [responses]); // Only run when responses change
+
+  useEffect(() => {
+
+    console.log("response");
+    if (socketRef.current) {
+      const handleAIResponses = ({ response }) => {
+        if (response !== null) {
+          setResponses(response);
+        }
+      };
+
+      socketRef.current.on(ACTIONS.AI_RESPONSES, handleAIResponses);
+
+      // Cleanup listener on unmount
+      return () => {
+        socketRef.current.off(ACTIONS.AI_RESPONSES, handleAIResponses);
+      };
+    }
+  }, [socketRef.current]);
+
+  
+
   return (
     <>
       {!usingAI && (
@@ -54,7 +85,7 @@ function AiEditor() {
           <div className="top_section">
             <h1 className="overlay_heading">Ai Editor</h1>
             <div className="cross" onClick={() => setUsingAI(false)}>
-              <RxCross2 />
+              <RxCross2 cursor={"pointer"} />
             </div>
           </div>
           <div className="overlay_response">
@@ -76,11 +107,12 @@ function AiEditor() {
                 <span className="dot"></span>
               </div>
             </div>
-          )}          <form onSubmit={handleSubmitForm}>
+          )}{" "}
+          <form onSubmit={handleSubmitForm}>
             <div className="text__field">
               <textarea
                 className="text_input"
-                rows='auto'
+                rows="auto"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyUp={handleSubmitForm}
@@ -91,7 +123,6 @@ function AiEditor() {
                 value="ASK"
                 className="text_submit"
                 disabled={loading}
-
               />
             </div>
           </form>

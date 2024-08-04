@@ -46,6 +46,11 @@ io.on('connection', (socket) => {
         socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
     });
 
+    socket.on(ACTIONS.AI_RESPONSES, ({ roomId, responses }) => {
+        console.log(responses);
+        socket.in(roomId).emit(ACTIONS.AI_RESPONSES, { response : responses });
+    });
+
     socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
         io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
     });
