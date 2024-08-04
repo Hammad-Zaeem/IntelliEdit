@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GiArtificialHive } from "react-icons/gi";
+import { FaWindowMinimize } from "react-icons/fa";
+import { CgMaximize } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
 import "./AiEditor.css";
 import { getPromptAnswer } from "../../utils/model";
@@ -12,6 +14,7 @@ function AiEditor({ socketRef, roomId }) {
   const [loading, setLoading] = useState(false);
   const [usingAI, setUsingAI] = useState(false);
   const [responses, setResponses] = useState([]);
+  const [minimized, setMinimized] = useState(true);
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
@@ -81,11 +84,19 @@ function AiEditor({ socketRef, roomId }) {
         </div>
       )}
       {usingAI && (
-        <div className="overlay">
+        <div
+          className={`overlay ${minimized ? "minimized" : ""}`}
+        >
           <div className="top_section">
-            <h1 className="overlay_heading">Ai Editor</h1>
-            <div className="cross" onClick={() => setUsingAI(false)}>
-              <RxCross2 cursor={"pointer"} />
+            <h1 className="overlay_heading">AI  Editor</h1>
+            <div className="tool_container">
+              {!minimized ?
+                <div className="minimize tool" onClick={() => setMinimized(true)}><FaWindowMinimize /></div> :
+                <div className="maximize tool" onClick={() => setMinimized(false)}><CgMaximize /></div>}
+
+              <div className="cross tool" onClick={() => setUsingAI(false)}>
+                <RxCross2 />
+              </div>
             </div>
           </div>
           <div className="overlay_response">
